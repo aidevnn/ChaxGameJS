@@ -2,6 +2,17 @@ import { Content } from "../src/enum";
 import { Cube } from "./../src/cube";
 
 describe("Cube cells testing", () => {
+    /*
+        3     1     3
+          2   0   2  
+            3 1 3    
+        1 0 1   1 0 1
+            3 1 3    
+          2   0   2  
+        3     1     3
+
+        Cells Power and Nb Rows
+    */
     it("Power and Nb Rows.", () => {
         const cube = new Cube();
         for (let c of cube.AllCells) {
@@ -66,7 +77,6 @@ describe("Cube Domination testing.", () => {
     });
 
     /*
-
         X     .     .               X     x     x
           .   .   .                   x   x   x  
             . . .                       x x x    
