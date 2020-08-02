@@ -63,13 +63,13 @@ export function DisplayCube(cube: Cube, detail: boolean): void {
         }
 
         if (detail) {
-            if (j == 3) s += "        00 10 20          D  B";
-            if (j == 4) s += "                           \\ |";
-            if (j == 5) s += "        01    21            \\|";
-            if (j == 6) s += "                          L-- --R";
-            if (j == 7) s += "        02 12 22             |\\";
-            if (j == 8) s += "                             | \\";
-            if (j == 9) s += "                             F  U";
+            if (j == 3) s += "        00 10 20      xx0 biggest square";
+            if (j == 4) s += "                ";
+            if (j == 5) s += "        01    21      xx1 middle square";
+            if (j == 6) s += "                ";
+            if (j == 7) s += "        02 12 22      xx2 smallest square";
+            if (j == 8) s += "                ";
+            if (j == 9) s += "                ";
         }
 
         console.log(s);
