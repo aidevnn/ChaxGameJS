@@ -64,7 +64,19 @@ describe("Cube Domination testing.", () => {
         expect(sc2.DomPlayer).toBe(0);
         expect(sc2.DomOpponent).toBe(40);
     });
-    
+
+    /*
+
+        X     .     .               X     x     x
+          .   .   .                   x   x   x  
+            . . .                       x x x    
+        . . .   . . .       =>      x x x   o o o
+            . . .                       x o o    
+          .   .   .                   x   o   o  
+        .     .     O               x     o     O
+
+        Domination : 28 - 12
+    */
     it("Two Cells Cube (1).", () => {
         const cube = new Cube();
         cube.SetCellByKey("c000", Content.P1);
@@ -83,6 +95,17 @@ describe("Cube Domination testing.", () => {
         expect(sc2.DomOpponent).toBe(12);
     });
     
+    /*
+        X     .     O               X     x     O
+          .   .   .                   x   x   o  
+            . . .                       x x o    
+        . . .   . . .       =>      x x x   o o o
+            . . .                       x x o    
+          .   .   .                   x   x   o  
+        .     .     .               x     x     o
+
+        Domination : 22 - 18
+    */
     it("Two Cells Cube (2).", () => {
         const cube = new Cube();
         cube.SetCellByKey("c000", Content.P1);
