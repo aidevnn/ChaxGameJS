@@ -19,8 +19,11 @@ export class Cell {
         this.Content = Content.Empty;
         this.Neighbors = [];
         this.Rows = [];
-        this.X = 2 * z;
-        this.Y = 6 - 2 * z;
+
+        let s = 2 * z;
+        let d = 6 - 2 * z;
+        this.X = s + d * x;
+        this.Y = s + d * y;
 
         let p = Math.abs(x - y);
         if (p == 0 || p == 2) {
