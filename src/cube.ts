@@ -120,6 +120,28 @@ export class Cube {
         c.Content = content;
     }
 
+    Clear():void {
+        for (let c of this.AllCells) {
+            c.Content = Content.Empty;   
+        }
+    }
+
+    Render(boardId: string): void {
+        let board = $(boardId);
+        board.empty();
+        for (let c of this.AllCells) {
+            if (c.Content == Content.Empty) continue;
+
+            let e = $("<div/>");
+            e.css("top", c.Y * 32 + 40);
+            e.css("left", c.X * 32 + 40);
+            if (c.Content == Content.P1) e.addClass("r1");
+            if (c.Content == Content.P2) e.addClass("r2");
+
+            board.append(e);
+        }
+    }
+
     ComputeDomination(player: Content): CubeScore {
         let opponent = GetOpponent(player);
 
