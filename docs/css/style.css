@@ -41,8 +41,8 @@
 }
 
 #link {
-  position: relative;
-  margin: 0 auto;
   width: 512px;
   height: 64px;
+  position: relative;
+  margin: 0 auto;
 }
