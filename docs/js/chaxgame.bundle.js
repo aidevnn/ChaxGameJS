@@ -1,4 +1,4 @@
-var ChaxGame =
+var Chax =
 /******/ (function(modules) { // webpackBootstrap
 /******/ 	// The module cache
 /******/ 	var installedModules = {};

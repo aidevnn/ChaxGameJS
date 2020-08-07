@@ -47,7 +47,7 @@ module.exports =[
         output: {
             filename: 'chaxgame.bundle.js',
             path: path.resolve(__dirname, 'docs/js'),
-            library: "ChaxGame",
+            library: "Chax",
         },
     }
 ];

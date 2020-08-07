@@ -10,8 +10,19 @@
       <div id="board"></div>
     </div>
     <div id="link">
+      <pre>
+        let cube = Chax.Cube();
+        cube.SetCellByKey("c000", Chax.CellP1);
+        cube.SetCellByKey("c200", Chax.CellP2);
+  
+        cube.SetCellByKey("c001", Chax.CellP1);
+        cube.SetCellByKey("c220", Chax.CellP2);
+  
+        cube.Render("#board");
+        cube.ConsoleCube(true);
+      </pre>
       <p>
-        <a href="https://github.com/aidevnn/ChaxGameJS">Return to github</a>
+        <a href="https://github.com/aidevnn/ChaxGameJS" target="blank">Return to github</a>
       </p>
     </div>
 
@@ -19,12 +30,12 @@
     <script src="./js/chaxgame.bundle.js"></script>
 
     <script type="text/javascript">
-      let cube = ChaxGame.Cube();
-      cube.SetCellByKey("c000", ChaxGame.CellP1);
-      cube.SetCellByKey("c200", ChaxGame.CellP2);
+      let cube = Chax.Cube();
+      cube.SetCellByKey("c000", Chax.CellP1);
+      cube.SetCellByKey("c200", Chax.CellP2);
 
-      cube.SetCellByKey("c001", ChaxGame.CellP1);
-      cube.SetCellByKey("c220", ChaxGame.CellP2);
+      cube.SetCellByKey("c001", Chax.CellP1);
+      cube.SetCellByKey("c220", Chax.CellP2);
 
       cube.Render("#board");
       cube.ConsoleCube(true);
