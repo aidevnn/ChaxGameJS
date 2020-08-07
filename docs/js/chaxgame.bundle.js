@@ -151,6 +151,17 @@ var Cell = /** @class */ (function () {
                 this.Power = 0;
         }
     }
+    Cell.prototype.ToHTML = function () {
+        var e = $("<div/>");
+        e.attr("id", this.Coords.cxyz);
+        e.css("top", this.Y * 32 + 40);
+        e.css("left", this.X * 32 + 40);
+        if (this.Content == enum_1.Content.P1)
+            e.addClass("r1");
+        if (this.Content == enum_1.Content.P2)
+            e.addClass("r2");
+        return e;
+    };
     return Cell;
 }());
 exports.Cell = Cell;
@@ -333,15 +344,7 @@ var Cube = /** @class */ (function () {
             var c = _a[_i];
             if (c.Content == enum_1.Content.Empty)
                 continue;
-            var e = $("<div/>");
-            e.attr("id", c.Coords.cxyz);
-            e.css("top", c.Y * 32 + 40);
-            e.css("left", c.X * 32 + 40);
-            if (c.Content == enum_1.Content.P1)
-                e.addClass("r1");
-            if (c.Content == enum_1.Content.P2)
-                e.addClass("r2");
-            board.append(e);
+            board.append(c.ToHTML());
         }
     };
     Cube.prototype.ConsoleCube = function (details) {

@@ -133,14 +133,7 @@ export class Cube {
         for (let c of this.AllCells) {
             if (c.Content == Content.Empty) continue;
 
-            let e = $("<div/>");
-            e.attr("id", c.Coords.cxyz);
-            e.css("top", c.Y * 32 + 40);
-            e.css("left", c.X * 32 + 40);
-            if (c.Content == Content.P1) e.addClass("r1");
-            if (c.Content == Content.P2) e.addClass("r2");
-
-            board.append(e);
+            board.append(c.ToHTML());
         }
     }
 

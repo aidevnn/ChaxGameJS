@@ -35,6 +35,17 @@ export class Cell {
             else this.Power = 0;
         }
     }
+
+    ToHTML(): JQuery<HTMLElement> {
+        let e = $("<div/>");
+        e.attr("id", this.Coords.cxyz);
+        e.css("top", this.Y * 32 + 40);
+        e.css("left", this.X * 32 + 40);
+        if (this.Content == Content.P1) e.addClass("r1");
+        if (this.Content == Content.P2) e.addClass("r2");
+
+        return e;
+    }
 }
 
 export class AltCell {
