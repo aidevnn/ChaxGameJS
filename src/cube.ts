@@ -121,9 +121,9 @@ export class Cube {
         c.Content = content;
     }
 
-    Clear():void {
+    Clear(): void {
         for (let c of this.AllCells) {
-            c.Content = Content.Empty;   
+            c.Content = Content.Empty;
         }
     }
 
@@ -134,6 +134,7 @@ export class Cube {
             if (c.Content == Content.Empty) continue;
 
             let e = $("<div/>");
+            e.attr("id", c.Coords.cxyz);
             e.css("top", c.Y * 32 + 40);
             e.css("left", c.X * 32 + 40);
             if (c.Content == Content.P1) e.addClass("r1");

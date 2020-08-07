@@ -334,6 +334,7 @@ var Cube = /** @class */ (function () {
             if (c.Content == enum_1.Content.Empty)
                 continue;
             var e = $("<div/>");
+            e.attr("id", c.Coords.cxyz);
             e.css("top", c.Y * 32 + 40);
             e.css("left", c.X * 32 + 40);
             if (c.Content == enum_1.Content.P1)
