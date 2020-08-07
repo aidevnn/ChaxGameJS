@@ -1,5 +1,6 @@
 import { Dir, Content, SameContent, GetOpponent } from "./enum";
 import { Cell, AltCell } from "./cell";
+import { DisplayCube } from "./cubeConsole"
 
 export class CubeScore {
     Player: Content;
@@ -140,6 +141,10 @@ export class Cube {
 
             board.append(e);
         }
+    }
+
+    ConsoleCube(details: boolean) {
+        DisplayCube(this, details);
     }
 
     ComputeDomination(player: Content): CubeScore {

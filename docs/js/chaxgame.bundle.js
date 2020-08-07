@@ -226,6 +226,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.Cube = exports.CubeScore = void 0;
 var enum_1 = __webpack_require__(/*! ./enum */ "./src/enum.ts");
 var cell_1 = __webpack_require__(/*! ./cell */ "./src/cell.ts");
+var cubeConsole_1 = __webpack_require__(/*! ./cubeConsole */ "./src/cubeConsole.ts");
 var CubeScore = /** @class */ (function () {
     function CubeScore(player, scPlayer, scOpponent, domPlayer, domOpponent) {
         this.Player = player;
@@ -342,6 +343,9 @@ var Cube = /** @class */ (function () {
             board.append(e);
         }
     };
+    Cube.prototype.ConsoleCube = function (details) {
+        cubeConsole_1.DisplayCube(this, details);
+    };
     Cube.prototype.ComputeDomination = function (player) {
         var opponent = enum_1.GetOpponent(player);
         var ScorePlayer = 0;
@@ -396,6 +400,106 @@ var Cube = /** @class */ (function () {
     return Cube;
 }());
 exports.Cube = Cube;
+
+
+/***/ }),
+
+/***/ "./src/cubeConsole.ts":
+/*!****************************!*\
+  !*** ./src/cubeConsole.ts ***!
+  \****************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.DisplayCube = void 0;
+var enum_1 = __webpack_require__(/*! ../src/enum */ "./src/enum.ts");
+var EMPTY = "#";
+var P1 = "X";
+var P2 = "O";
+var StrContent = function (c) {
+    switch (c) {
+        case enum_1.Content.Empty: return EMPTY;
+        case enum_1.Content.P1: return P1;
+        case enum_1.Content.P2: return P2;
+    }
+};
+var PrepareGrid = function () {
+    var DGrid = new Array(13);
+    for (var i = 0; i < 13; ++i) {
+        DGrid[i] = new Array(13);
+        for (var j = 0; j < 13; ++j) {
+            DGrid[i][j] = ' ';
+        }
+    }
+    for (var k = 0; k < 6; k += 2) {
+        for (var i = k; i < 13 - k; ++i) {
+            DGrid[i][k] = DGrid[i][12 - k] = '-';
+            DGrid[k][i] = DGrid[12 - k][i] = '|';
+        }
+        DGrid[k][k] = DGrid[6][k] = DGrid[12 - k][k] = EMPTY;
+        DGrid[k][12 - k] = DGrid[6][12 - k] = DGrid[12 - k][12 - k] = EMPTY;
+        DGrid[k][6] = DGrid[12 - k][6] = EMPTY;
+    }
+    for (var k = 1; k < 12; k += 2) {
+        if (k > 3 && k < 9)
+            continue;
+        DGrid[k][k] = '\\';
+        DGrid[k][6] = '-';
+        DGrid[6][k] = '|';
+        DGrid[12 - k][k] = '/';
+    }
+    return DGrid;
+};
+function DisplayCube(cube, detail) {
+    var DGrid = PrepareGrid();
+    for (var _i = 0, _a = cube.AllCells; _i < _a.length; _i++) {
+        var c_1 = _a[_i];
+        DGrid[c_1.X][c_1.Y] = StrContent(c_1.Content);
+    }
+    console.clear();
+    var s1 = 0, s2 = 0;
+    for (var j = 0; j < 13; ++j) {
+        var s = "    ";
+        for (var i = 0; i < 13; ++i) {
+            var c = DGrid[i][j];
+            s += c;
+            if (c == P1)
+                ++s1;
+            if (c == P2)
+                ++s2;
+        }
+        if (detail) {
+            if (j == 3)
+                s += "        00 10 20      xx0 biggest square";
+            if (j == 4)
+                s += "                ";
+            if (j == 5)
+                s += "        01    21      xx1 middle square";
+            if (j == 6)
+                s += "                ";
+            if (j == 7)
+                s += "        02 12 22      xx2 smallest square";
+            if (j == 8)
+                s += "                ";
+            if (j == 9)
+                s += "                ";
+        }
+        console.log(s);
+    }
+    console.log();
+    if (detail) {
+        console.log(EMPTY, ":", "EmptyCell");
+        console.log(P1, ":", "PlayerOne");
+        console.log(P2, ":", "PlayerTwo");
+        console.log();
+        console.log("Remain", P1, "=", s1, " - ", P2, "=", s2);
+        console.log();
+    }
+}
+exports.DisplayCube = DisplayCube;
 
 
 /***/ }),
