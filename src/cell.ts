@@ -1,4 +1,4 @@
-import { Content } from "./enum";
+import { Content } from "./commons";
 import { Coords } from "./coords3D";
 
 export class Cell {

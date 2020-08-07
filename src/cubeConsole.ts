@@ -1,4 +1,4 @@
-import { Content } from "../src/enum";
+import { Content } from "./commons";
 import { Cube } from "./../src/cube";
 
 const EMPTY = "#";

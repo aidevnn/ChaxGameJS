@@ -1,4 +1,4 @@
-import { Dir, Content, SameContent, GetOpponent } from "./enum";
+import { Dir, Content, SameContent, GetOpponent } from "./commons";
 import { Cell, AltCell } from "./cell";
 import { DisplayCube } from "./cubeConsole"
 
@@ -119,6 +119,14 @@ export class Cube {
             return;
 
         c.Content = content;
+    }
+
+    Export(): string {
+        let s = '';
+        for (let c of this.AllCells) {
+            s += c.Content;
+        }
+        return s;
     }
 
     Clear(): void {

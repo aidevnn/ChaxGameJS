@@ -1,4 +1,4 @@
-import { Content } from "../src/enum";
+import { Content } from "../src/commons";
 import { Cube } from "./../src/cube";
 
 describe("Cube cells testing", () => {

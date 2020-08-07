@@ -1,4 +1,4 @@
-import { Dir } from "./enum";
+import { Dir } from "./commons";
 
 export class Coords {
     X: number;

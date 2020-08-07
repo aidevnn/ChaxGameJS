@@ -1,7 +1,7 @@
 
 "use strict";
 
-import { Content } from "./enum"
+import { Content } from "./commons"
 import { Cube } from "./cube";
 
 console.log("Chaxgame lib ready");

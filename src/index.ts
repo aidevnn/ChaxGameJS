@@ -1,6 +1,5 @@
-import { Content } from "./enum"
+import { Content } from "./commons"
 import { Cube } from "./cube";
-import { DisplayCube } from "./cubeConsole"
 
 let cube = new Cube();
 cube.SetCellByKey("c000", Content.P1);
@@ -9,7 +8,7 @@ cube.SetCellByKey("c200", Content.P2);
 cube.SetCellByKey("c001", Content.P1);
 cube.SetCellByKey("c220", Content.P2);
 
-DisplayCube(cube, true);
+cube.ConsoleCube(true);
 
 /*
 for(let c of cube.AllCells){
