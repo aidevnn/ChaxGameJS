@@ -22,7 +22,7 @@ module.exports =[
         output: {
             filename: 'chaxgame.bundle.js',
             path: path.resolve(__dirname, 'dist'),
-            library: "ChaxGame",
+            library: "Chax",
         },
     },
     {
