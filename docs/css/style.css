@@ -42,7 +42,7 @@
 
 #link {
   width: 512px;
-  height: 64px;
+  height: fit-content;
   position: relative;
   margin: 0 auto;
 }
