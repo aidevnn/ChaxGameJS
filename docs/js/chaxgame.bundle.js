@@ -97,13 +97,13 @@ var Chax =
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
-var enum_1 = __webpack_require__(/*! ./enum */ "./src/enum.ts");
+var commons_1 = __webpack_require__(/*! ./commons */ "./src/commons.ts");
 var cube_1 = __webpack_require__(/*! ./cube */ "./src/cube.ts");
 console.log("Chaxgame lib ready");
 module.exports = {
-    CellEmpty: enum_1.Content.Empty,
-    CellP1: enum_1.Content.P1,
-    CellP2: enum_1.Content.P2,
+    CellEmpty: commons_1.Content.Empty,
+    CellP1: commons_1.Content.P1,
+    CellP2: commons_1.Content.P2,
     Cube: function () {
         return new cube_1.Cube();
     }
@@ -123,14 +123,14 @@ module.exports = {
 
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.AltCell = exports.Cell = void 0;
-var enum_1 = __webpack_require__(/*! ./enum */ "./src/enum.ts");
+var commons_1 = __webpack_require__(/*! ./commons */ "./src/commons.ts");
 var coords3D_1 = __webpack_require__(/*! ./coords3D */ "./src/coords3D.ts");
 var Cell = /** @class */ (function () {
     function Cell(id, x, y, z) {
         this.Id = id;
         this.Coords = new coords3D_1.Coords(x, y, z);
         this.Power = 0;
-        this.Content = enum_1.Content.Empty;
+        this.Content = commons_1.Content.Empty;
         this.Neighbors = [];
         this.Rows = [];
         var s = 2 * z;
@@ -156,9 +156,9 @@ var Cell = /** @class */ (function () {
         e.attr("id", this.Coords.cxyz);
         e.css("top", this.Y * 32 + 40);
         e.css("left", this.X * 32 + 40);
-        if (this.Content == enum_1.Content.P1)
+        if (this.Content == commons_1.Content.P1)
             e.addClass("r1");
-        if (this.Content == enum_1.Content.P2)
+        if (this.Content == commons_1.Content.P2)
             e.addClass("r2");
         return e;
     };
@@ -169,14 +169,77 @@ var AltCell = /** @class */ (function () {
     function AltCell(id, pow) {
         this.Id = id;
         this.Power = pow;
-        this.Content = enum_1.Content.Empty;
-        this.AltContent = enum_1.Content.Empty;
+        this.Content = commons_1.Content.Empty;
+        this.AltContent = commons_1.Content.Empty;
         this.Step = 0;
         this.Neighbors = [];
     }
     return AltCell;
 }());
 exports.AltCell = AltCell;
+
+
+/***/ }),
+
+/***/ "./src/commons.ts":
+/*!************************!*\
+  !*** ./src/commons.ts ***!
+  \************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.RandInteger = exports.DiffContent = exports.SameContent = exports.GetOpponent = exports.ActionType = exports.Content = exports.Dir = void 0;
+var Dir;
+(function (Dir) {
+    Dir[Dir["R"] = 0] = "R";
+    Dir[Dir["L"] = 1] = "L";
+    Dir[Dir["D"] = 2] = "D";
+    Dir[Dir["U"] = 3] = "U";
+    Dir[Dir["F"] = 4] = "F";
+    Dir[Dir["B"] = 5] = "B";
+})(Dir = exports.Dir || (exports.Dir = {}));
+;
+var Content;
+(function (Content) {
+    Content[Content["Empty"] = 0] = "Empty";
+    Content[Content["P1"] = 1] = "P1";
+    Content[Content["P2"] = 2] = "P2";
+})(Content = exports.Content || (exports.Content = {}));
+;
+var ActionType;
+(function (ActionType) {
+    ActionType[ActionType["Place"] = 0] = "Place";
+    ActionType[ActionType["Remove"] = 1] = "Remove";
+    ActionType[ActionType["Pass"] = 2] = "Pass";
+    ActionType[ActionType["Battle"] = 3] = "Battle";
+})(ActionType = exports.ActionType || (exports.ActionType = {}));
+;
+function GetOpponent(content) {
+    switch (content) {
+        case Content.Empty: return Content.Empty;
+        case Content.P1: return Content.P2;
+        case Content.P2: return Content.P1;
+    }
+}
+exports.GetOpponent = GetOpponent;
+function SameContent(c1, c2) {
+    if (c1 == Content.Empty || c2 == Content.Empty)
+        return false;
+    return c1 == c2;
+}
+exports.SameContent = SameContent;
+function DiffContent(c1, c2) {
+    if (c1 == Content.Empty || c2 == Content.Empty)
+        return false;
+    return c1 != c2;
+}
+exports.DiffContent = DiffContent;
+exports.RandInteger = function (min, max) {
+    return Math.floor(Math.random() * (max - min)) + min;
+};
 
 
 /***/ }),
@@ -192,7 +255,7 @@ exports.AltCell = AltCell;
 
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Coords = void 0;
-var enum_1 = __webpack_require__(/*! ./enum */ "./src/enum.ts");
+var commons_1 = __webpack_require__(/*! ./commons */ "./src/commons.ts");
 var Coords = /** @class */ (function () {
     function Coords(x, y, z) {
         this.X = x;
@@ -202,12 +265,12 @@ var Coords = /** @class */ (function () {
     }
     Coords.prototype.Next = function (dir) {
         switch (dir) {
-            case enum_1.Dir.R: return new Coords(this.X + 1, this.Y, this.Z);
-            case enum_1.Dir.L: return new Coords(this.X - 1, this.Y, this.Z);
-            case enum_1.Dir.D: return new Coords(this.X, this.Y + 1, this.Z);
-            case enum_1.Dir.U: return new Coords(this.X, this.Y - 1, this.Z);
-            case enum_1.Dir.F: return new Coords(this.X, this.Y, this.Z + 1);
-            case enum_1.Dir.B: return new Coords(this.X, this.Y, this.Z - 1);
+            case commons_1.Dir.R: return new Coords(this.X + 1, this.Y, this.Z);
+            case commons_1.Dir.L: return new Coords(this.X - 1, this.Y, this.Z);
+            case commons_1.Dir.D: return new Coords(this.X, this.Y + 1, this.Z);
+            case commons_1.Dir.U: return new Coords(this.X, this.Y - 1, this.Z);
+            case commons_1.Dir.F: return new Coords(this.X, this.Y, this.Z + 1);
+            case commons_1.Dir.B: return new Coords(this.X, this.Y, this.Z - 1);
         }
     };
     Coords.prototype.InCube = function () {
@@ -235,7 +298,7 @@ exports.Coords = Coords;
 
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Cube = exports.CubeScore = void 0;
-var enum_1 = __webpack_require__(/*! ./enum */ "./src/enum.ts");
+var commons_1 = __webpack_require__(/*! ./commons */ "./src/commons.ts");
 var cell_1 = __webpack_require__(/*! ./cell */ "./src/cell.ts");
 var cubeConsole_1 = __webpack_require__(/*! ./cubeConsole */ "./src/cubeConsole.ts");
 var CubeScore = /** @class */ (function () {
@@ -247,16 +310,16 @@ var CubeScore = /** @class */ (function () {
         this.DomOpponent = domOpponent;
     }
     CubeScore.prototype.GetScore = function (c) {
-        if (c == enum_1.Content.Empty)
+        if (c == commons_1.Content.Empty)
             return 0;
-        if (enum_1.SameContent(c, this.Player))
+        if (commons_1.SameContent(c, this.Player))
             return this.ScorePlayer;
         return this.ScoreOpponent;
     };
     CubeScore.prototype.GetDomination = function (c) {
-        if (c == enum_1.Content.Empty)
+        if (c == commons_1.Content.Empty)
             return 0;
-        if (enum_1.SameContent(c, this.Player))
+        if (commons_1.SameContent(c, this.Player))
             return this.DomPlayer;
         return this.DomOpponent;
     };
@@ -272,7 +335,7 @@ var Cube = /** @class */ (function () {
         this.Init();
     }
     Cube.prototype.Init = function () {
-        var dirs = [enum_1.Dir.B, enum_1.Dir.D, enum_1.Dir.F, enum_1.Dir.L, enum_1.Dir.R, enum_1.Dir.U];
+        var dirs = [commons_1.Dir.B, commons_1.Dir.D, commons_1.Dir.F, commons_1.Dir.L, commons_1.Dir.R, commons_1.Dir.U];
         var id = 0;
         for (var i = 0; i < 3; ++i) {
             for (var j = 0; j < 3; ++j) {
@@ -331,10 +394,18 @@ var Cube = /** @class */ (function () {
             return;
         c.Content = content;
     };
+    Cube.prototype.Export = function () {
+        var s = '';
+        for (var _i = 0, _a = this.AllCells; _i < _a.length; _i++) {
+            var c = _a[_i];
+            s += c.Content;
+        }
+        return s;
+    };
     Cube.prototype.Clear = function () {
         for (var _i = 0, _a = this.AllCells; _i < _a.length; _i++) {
             var c = _a[_i];
-            c.Content = enum_1.Content.Empty;
+            c.Content = commons_1.Content.Empty;
         }
     };
     Cube.prototype.Render = function (boardId) {
@@ -342,7 +413,7 @@ var Cube = /** @class */ (function () {
         board.empty();
         for (var _i = 0, _a = this.AllCells; _i < _a.length; _i++) {
             var c = _a[_i];
-            if (c.Content == enum_1.Content.Empty)
+            if (c.Content == commons_1.Content.Empty)
                 continue;
             board.append(c.ToHTML());
         }
@@ -351,7 +422,7 @@ var Cube = /** @class */ (function () {
         cubeConsole_1.DisplayCube(this, details);
     };
     Cube.prototype.ComputeDomination = function (player) {
-        var opponent = enum_1.GetOpponent(player);
+        var opponent = commons_1.GetOpponent(player);
         var ScorePlayer = 0;
         var ScoreOpponent = 0;
         var DomPlayer = 0;
@@ -360,9 +431,9 @@ var Cube = /** @class */ (function () {
         for (var i = 0; i < 24; ++i) {
             var cc = this.AllAltCells[i];
             cc.Content = this.AllCells[i].Content;
-            cc.AltContent = enum_1.Content.Empty;
+            cc.AltContent = commons_1.Content.Empty;
             cc.Step = 0;
-            if (cc.Content != enum_1.Content.Empty) {
+            if (cc.Content != commons_1.Content.Empty) {
                 this.Queue.push(cc);
                 cc.AltContent = cc.Content;
                 if (cc.Content == player) {
@@ -381,7 +452,7 @@ var Cube = /** @class */ (function () {
                 break;
             for (var _i = 0, _a = c.Neighbors; _i < _a.length; _i++) {
                 var n = _a[_i];
-                if (n.Content == enum_1.Content.Empty) {
+                if (n.Content == commons_1.Content.Empty) {
                     n.Content = c.Content;
                     n.Step = c.Step + 1;
                     this.Queue.push(n);
@@ -390,7 +461,7 @@ var Cube = /** @class */ (function () {
                     if (n.Content == opponent)
                         DomOpponent += n.Power;
                 }
-                else if (n.Content != c.Content && n.AltContent == enum_1.Content.Empty && n.Step == c.Step + 1) {
+                else if (n.Content != c.Content && n.AltContent == commons_1.Content.Empty && n.Step == c.Step + 1) {
                     n.AltContent = c.Content;
                     if (n.Content == opponent && c.Content == player) {
                         DomPlayer += n.Power;
@@ -419,15 +490,15 @@ exports.Cube = Cube;
 
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.DisplayCube = void 0;
-var enum_1 = __webpack_require__(/*! ../src/enum */ "./src/enum.ts");
+var commons_1 = __webpack_require__(/*! ./commons */ "./src/commons.ts");
 var EMPTY = "#";
 var P1 = "X";
 var P2 = "O";
 var StrContent = function (c) {
     switch (c) {
-        case enum_1.Content.Empty: return EMPTY;
-        case enum_1.Content.P1: return P1;
-        case enum_1.Content.P2: return P2;
+        case commons_1.Content.Empty: return EMPTY;
+        case commons_1.Content.P1: return P1;
+        case commons_1.Content.P2: return P2;
     }
 };
 var PrepareGrid = function () {
@@ -504,58 +575,6 @@ function DisplayCube(cube, detail) {
     }
 }
 exports.DisplayCube = DisplayCube;
-
-
-/***/ }),
-
-/***/ "./src/enum.ts":
-/*!*********************!*\
-  !*** ./src/enum.ts ***!
-  \*********************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.DiffContent = exports.SameContent = exports.GetOpponent = exports.Content = exports.Dir = void 0;
-var Dir;
-(function (Dir) {
-    Dir[Dir["R"] = 0] = "R";
-    Dir[Dir["L"] = 1] = "L";
-    Dir[Dir["D"] = 2] = "D";
-    Dir[Dir["U"] = 3] = "U";
-    Dir[Dir["F"] = 4] = "F";
-    Dir[Dir["B"] = 5] = "B";
-})(Dir = exports.Dir || (exports.Dir = {}));
-;
-var Content;
-(function (Content) {
-    Content[Content["Empty"] = 0] = "Empty";
-    Content[Content["P1"] = 1] = "P1";
-    Content[Content["P2"] = 2] = "P2";
-})(Content = exports.Content || (exports.Content = {}));
-;
-function GetOpponent(content) {
-    switch (content) {
-        case Content.Empty: return Content.Empty;
-        case Content.P1: return Content.P2;
-        case Content.P2: return Content.P1;
-    }
-}
-exports.GetOpponent = GetOpponent;
-function SameContent(c1, c2) {
-    if (c1 == Content.Empty || c2 == Content.Empty)
-        return false;
-    return c1 == c2;
-}
-exports.SameContent = SameContent;
-function DiffContent(c1, c2) {
-    if (c1 == Content.Empty || c2 == Content.Empty)
-        return false;
-    return c1 != c2;
-}
-exports.DiffContent = DiffContent;
 
 
 /***/ })
