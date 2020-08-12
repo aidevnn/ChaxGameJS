@@ -84,4 +84,6 @@ export function DisplayCube(cube: Cube, detail: boolean): void {
         console.log("Remain", P1, "=", s1, " - ", P2, "=", s2);
         console.log();
     }
+
+    console.log("Export", cube.Export());
 }

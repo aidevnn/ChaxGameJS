@@ -1,5 +1,5 @@
 import { Content, ActionType } from "./commons"
-import { Cube } from "./cube"
+import { Cube, EmptyCube } from "./cube"
 
 export interface Move {
     Player: Content;
@@ -8,10 +8,12 @@ export interface Move {
 
     Do(cube: Cube): void;
     Undo(cube: Cube): void;
+
+    ToStr(): string;
 }
 
 export const MoveComparer = function (m0: Move, m1: Move) {
-    return m0.Weight < m1.Weight ? -1 : 1;
+    return m0.Weight > m1.Weight ? -1 : 1;
 }
 
 export class MovePass implements Move {
@@ -23,6 +25,10 @@ export class MovePass implements Move {
         this.Player = player;
         this.ActionType = ActionType.Pass;
         this.Weight = 0;
+    }
+
+    ToStr(): string {
+        return `Player:${this.Player} PASS`;
     }
 
     Do(cube: Cube): void { }
@@ -40,6 +46,11 @@ export class MovePlace implements Move {
         this.ActionType = ActionType.Place;
         this.Weight = 0;
         this.IdCell = idCell;
+    }
+    
+    ToStr(): string {
+        let c = EmptyCube.AllCells[this.IdCell].Coords.cxyz;
+        return `Player:${this.Player} PLACE AT ${c}`;
     }
 
     Do(cube: Cube): void {
@@ -62,6 +73,11 @@ export class MoveFirst implements Move {
         this.ActionType = ActionType.Remove;
         this.Weight = 0;
         this.IdCell = idCell;
+    }
+
+    ToStr(): string {
+        let c = EmptyCube.AllCells[this.IdCell].Coords.cxyz;
+        return `Player:${this.Player} REMOVE AT ${c}`;
     }
 
     Do(cube: Cube): void {

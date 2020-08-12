@@ -1,6 +1,8 @@
 import { Content, GetOpponent } from "../src/commons"
 import { Cube } from "./../src/cube"
-import { GenMovesBattle, RandomCubes } from "./../src/movesGenerator"
+import { AllCubes, GenMovesBattle, RandomCubes } from "./../src/movesGenerator"
+import { GameState } from "./gameState";
+import { AlphaBeta } from "./minmaxAlgo";
 
 export const BenchMoveGen = function (M: number): void {
     //RandomCubes();
@@ -68,5 +70,26 @@ export const BenchBruteForce = function (depth: number): void {
         }
         console.groupEnd();
     }
+    console.log(`Global Avg: ${Math.round(totalNb / totalTime)} Games/ms`);
+}
+
+export const BenchBruteForce2 = function (s: string, depth: number): void {
+    let totalNb = 0;
+    let totalTime = 0;
+
+    for (let a = 0; a < 5; ++a) {
+        let cube = new Cube();
+        cube.Import(s);
+
+        nb = 0;
+        let start = Date.now();
+        BruteForce(cube, Content.P2, depth);
+        let end = Date.now();
+        let diff = end - start;
+        totalNb += nb;
+        totalTime += diff;
+        console.log(`Nb Games : ${nb}; Time: ${diff} ms; Avg: ${Math.round(nb / diff)} Games/ms`);
+    }
+    console.groupEnd();
     console.log(`Global Avg: ${Math.round(totalNb / totalTime)} Games/ms`);
 }

@@ -12,7 +12,7 @@ export const Placement = function (cube: Cube, player: Content, randomize?: bool
 
         let mv = new MovePlace(player, idCell);
         mv.Do(cube);
-        mv.Weight = cube.ComputeDomination(player).DomPlayer * 100 + c.Power * 10000;
+        mv.Weight = (cube.ComputeDomination(player).DomPlayer * 100 + c.Power * 10000);
         if (randomize)
             mv.Weight += RandInteger(0, 100);
 
@@ -32,7 +32,7 @@ export const FirstTurn = function (cube: Cube, player: Content, randomize?: bool
 
         let mv = new MoveFirst(player, idCell);
         mv.Do(cube);
-        mv.Weight = -cube.ComputeDomination(player).DomPlayer * 100 - c.Power * 10000;
+        mv.Weight = -(cube.ComputeDomination(player).DomPlayer * 100 + c.Power * 10000);
         if (randomize)
             mv.Weight -= RandInteger(0, 100);
 
@@ -106,7 +106,8 @@ export const BuildMoveBattle = function (cube: Cube, current: MoveBattle, moves:
         let e = cube.ExportBit();
         if (!AllCubes.includes(e)) {
             if (mv.Steps == 1 || ms.NbKills != 0) {
-                mv.Weight = RandInteger(0, 100) + n.Power * 100 + mv.TotalKills * 1000;
+                let sc = cube.ComputeDomination(current.Player);
+                mv.Weight = RandInteger(0, 100) + sc.DomPlayer * 100 + mv.TotalKills * 10000;
                 moves.push(mv);
             }
 

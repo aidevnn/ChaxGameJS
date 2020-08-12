@@ -129,7 +129,7 @@ export class Cube {
 
     ChangeBitPlayer(id: number, b: Content, a: Content): void {
         let i = 1 << id;
-        
+
         if (b == Content.P1 && a == Content.Empty) this.BitPlayer1 ^= i;
         if (b == Content.P2 && a == Content.Empty) this.BitPlayer2 ^= i;
 
@@ -145,8 +145,21 @@ export class Cube {
         return s;
     }
 
+    Import(s: string): void {
+        this.BitPlayer1 = 0;
+        this.BitPlayer2 = 0;
+        for (let i = 0; i < 24; ++i) {
+            this.AllCells[i].Content = Content.Empty;
+            let c = s[i];
+
+            if (c == "1") this.SetCellById(i, Content.P1);
+            else if (c == "2") this.SetCellById(i, Content.P2);
+            else this.SetCellById(i, Content.Empty);
+        }
+    }
+
     ExportBit(): number {
-        return  this.BitPlayer1 + 1000000000000 * this.BitPlayer2;
+        return this.BitPlayer1 + 1000000000000 * this.BitPlayer2;
     }
 
     Clear(): void {
@@ -227,3 +240,5 @@ export class Cube {
         return new CubeScore(player, ScorePlayer, ScoreOpponent, DomPlayer, DomOpponent);
     }
 }
+
+export const EmptyCube = new Cube();

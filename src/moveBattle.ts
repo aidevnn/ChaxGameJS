@@ -1,5 +1,5 @@
 import { Content, ActionType, GetOpponent } from "./commons"
-import { Cube } from "./cube"
+import { Cube, EmptyCube } from "./cube"
 import { Move } from "./moves"
 
 export class SubMove {
@@ -24,6 +24,17 @@ export class SubMove {
         ms.IdOpponent2 = this.IdOpponent2;
         ms.NbKills = this.NbKills;
         return ms;
+    }
+
+    ToStr(): string {
+        let cb = EmptyCube.AllCells[this.IdBefore].Coords.cxyz;
+        let ca = EmptyCube.AllCells[this.IdAfter].Coords.cxyz;
+        let co1 = this.IdOpponent1 == -1 ? "" : EmptyCube.AllCells[this.IdOpponent1].Coords.cxyz;
+        let co2 = this.IdOpponent2 == -1 ? "" : EmptyCube.AllCells[this.IdOpponent2].Coords.cxyz;
+        let kills = "";
+        if (this.NbKills == 1) kills = `Kill one at [${co1}]`;
+        if (this.NbKills == 2) kills = `Kill two at [${co1}] and [${co2}]`;
+        return `    MOVE from [${cb}] to [${ca}] ${kills}`;
     }
 
     DoStep(cube: Cube): void {
@@ -66,28 +77,36 @@ export class MoveBattle implements Move {
         mv.IdAfter = idAfter;
         mv.TotalKills = mv0.TotalKills;
         mv.Steps = mv0.Steps + 1;
-        
+
         for (let ms of mv0.SubMoves) {
             mv.SubMoves.push(ms.Clone());
         }
         return mv;
     }
 
-    static Clone(mv0: MoveBattle): MoveBattle {
-        let mv = new MoveBattle(mv0.Player);
-        mv.IdBefore = mv0.IdBefore;
-        mv.IdAfter = mv0.IdAfter;
-        mv.Weight = mv0.Weight;
-        mv.TotalKills = mv0.TotalKills;
-        mv.Steps = mv0.Steps;
-        mv.SubMoves.concat(mv0.SubMoves);
-        return mv;
-    }
-
     constructor(player: Content) {
         this.Player = player;
         this.Opponent = GetOpponent(player);
-        this.SubMoves = [];
+        this.SubMoves = new Array<SubMove>();
+    }
+
+    ToStr(): string {
+        let s = '';
+        let cb = EmptyCube.AllCells[this.IdBefore].Coords.cxyz;
+        let ca = EmptyCube.AllCells[this.IdAfter].Coords.cxyz;
+        if (this.TotalKills == 0) {
+            return `Player:${this.Player} MOVEBATTLE from [${cb}] to [${ca}]`;
+        }
+
+        s += `Player:${this.Player} MOVEBATTLE from [${cb}] to [${ca}]\n`;
+        let k = 0;
+        for (let ms of this.SubMoves) {
+            ++k;
+            s += "" + k + " " + ms.ToStr() + '\n';
+        }
+        s += `  TotalKils: ${this.TotalKills}`;
+
+        return s;
     }
 
     Do(cube: Cube): void {
@@ -97,7 +116,7 @@ export class MoveBattle implements Move {
     }
 
     Undo(cube: Cube): void {
-        for (let mv of this.SubMoves.reverse()) {
+        for (let mv of this.SubMoves.slice().reverse()) {
             mv.UndoStep(cube);
         }
     }

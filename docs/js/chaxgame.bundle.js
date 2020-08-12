@@ -124,7 +124,7 @@ module.exports = {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.BenchBruteForce = exports.BenchMoveGen = void 0;
+exports.BenchBruteForce2 = exports.BenchBruteForce = exports.BenchMoveGen = void 0;
 var commons_1 = __webpack_require__(/*! ../src/commons */ "./src/commons.ts");
 var cube_1 = __webpack_require__(/*! ./../src/cube */ "./src/cube.ts");
 var movesGenerator_1 = __webpack_require__(/*! ./../src/movesGenerator */ "./src/movesGenerator.ts");
@@ -187,6 +187,24 @@ exports.BenchBruteForce = function (depth) {
         }
         console.groupEnd();
     }
+    console.log("Global Avg: " + Math.round(totalNb / totalTime) + " Games/ms");
+};
+exports.BenchBruteForce2 = function (s, depth) {
+    var totalNb = 0;
+    var totalTime = 0;
+    for (var a = 0; a < 5; ++a) {
+        var cube = new cube_1.Cube();
+        cube.Import(s);
+        nb = 0;
+        var start = Date.now();
+        BruteForce(cube, commons_1.Content.P2, depth);
+        var end = Date.now();
+        var diff = end - start;
+        totalNb += nb;
+        totalTime += diff;
+        console.log("Nb Games : " + nb + "; Time: " + diff + " ms; Avg: " + Math.round(nb / diff) + " Games/ms");
+    }
+    console.groupEnd();
     console.log("Global Avg: " + Math.round(totalNb / totalTime) + " Games/ms");
 };
 
@@ -273,7 +291,7 @@ exports.AltCell = AltCell;
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.RandInteger = exports.DiffContent = exports.SameContent = exports.GetOpponent = exports.ActionType = exports.Content = exports.Dir = void 0;
+exports.RandInteger = exports.RandSeed = exports.DiffContent = exports.SameContent = exports.GetOpponent = exports.ActionType = exports.Content = exports.Dir = void 0;
 var Dir;
 (function (Dir) {
     Dir[Dir["R"] = 0] = "R";
@@ -319,8 +337,25 @@ function DiffContent(c1, c2) {
     return c1 != c2;
 }
 exports.DiffContent = DiffContent;
+var m_w = 123456789;
+var m_z = 987654321;
+var mask = 0xffffffff;
+// Takes any integer
+exports.RandSeed = function (i) {
+    m_w = (123456789 + i) & mask;
+    m_z = (987654321 - i) & mask;
+};
+// Returns number between 0 (inclusive) and 1.0 (exclusive),
+// just like Math.random().
+function random() {
+    m_z = (36969 * (m_z & 65535) + (m_z >> 16)) & mask;
+    m_w = (18000 * (m_w & 65535) + (m_w >> 16)) & mask;
+    var result = ((m_z << 16) + (m_w & 65535)) >>> 0;
+    result /= 4294967296;
+    return result;
+}
 exports.RandInteger = function (min, max) {
-    return Math.floor(Math.random() * (max - min)) + min;
+    return Math.floor(random() * (max - min)) + min;
 };
 
 
@@ -379,7 +414,7 @@ exports.Coords = Coords;
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.Cube = exports.CubeScore = void 0;
+exports.EmptyCube = exports.Cube = exports.CubeScore = void 0;
 var commons_1 = __webpack_require__(/*! ./commons */ "./src/commons.ts");
 var cell_1 = __webpack_require__(/*! ./cell */ "./src/cell.ts");
 var cubeConsole_1 = __webpack_require__(/*! ./cubeConsole */ "./src/cubeConsole.ts");
@@ -499,6 +534,20 @@ var Cube = /** @class */ (function () {
         }
         return s;
     };
+    Cube.prototype.Import = function (s) {
+        this.BitPlayer1 = 0;
+        this.BitPlayer2 = 0;
+        for (var i = 0; i < 24; ++i) {
+            this.AllCells[i].Content = commons_1.Content.Empty;
+            var c = s[i];
+            if (c == "1")
+                this.SetCellById(i, commons_1.Content.P1);
+            else if (c == "2")
+                this.SetCellById(i, commons_1.Content.P2);
+            else
+                this.SetCellById(i, commons_1.Content.Empty);
+        }
+    };
     Cube.prototype.ExportBit = function () {
         return this.BitPlayer1 + 1000000000000 * this.BitPlayer2;
     };
@@ -574,6 +623,7 @@ var Cube = /** @class */ (function () {
     return Cube;
 }());
 exports.Cube = Cube;
+exports.EmptyCube = new Cube();
 
 
 /***/ }),
@@ -672,6 +722,7 @@ function DisplayCube(cube, detail) {
         console.log("Remain", P1, "=", s1, " - ", P2, "=", s2);
         console.log();
     }
+    console.log("Export", cube.Export());
 }
 exports.DisplayCube = DisplayCube;
 
@@ -690,6 +741,7 @@ exports.DisplayCube = DisplayCube;
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.MoveBattle = exports.SubMove = void 0;
 var commons_1 = __webpack_require__(/*! ./commons */ "./src/commons.ts");
+var cube_1 = __webpack_require__(/*! ./cube */ "./src/cube.ts");
 var SubMove = /** @class */ (function () {
     function SubMove(player, idBefore, idAfter) {
         this.IdOpponent1 = -1;
@@ -706,6 +758,18 @@ var SubMove = /** @class */ (function () {
         ms.IdOpponent2 = this.IdOpponent2;
         ms.NbKills = this.NbKills;
         return ms;
+    };
+    SubMove.prototype.ToStr = function () {
+        var cb = cube_1.EmptyCube.AllCells[this.IdBefore].Coords.cxyz;
+        var ca = cube_1.EmptyCube.AllCells[this.IdAfter].Coords.cxyz;
+        var co1 = this.IdOpponent1 == -1 ? "" : cube_1.EmptyCube.AllCells[this.IdOpponent1].Coords.cxyz;
+        var co2 = this.IdOpponent2 == -1 ? "" : cube_1.EmptyCube.AllCells[this.IdOpponent2].Coords.cxyz;
+        var kills = "";
+        if (this.NbKills == 1)
+            kills = "Kill one at [" + co1 + "]";
+        if (this.NbKills == 2)
+            kills = "Kill two at [" + co1 + "] and [" + co2 + "]";
+        return "    MOVE from [" + cb + "] to [" + ca + "] " + kills;
     };
     SubMove.prototype.DoStep = function (cube) {
         cube.SetCellById(this.IdBefore, commons_1.Content.Empty);
@@ -736,7 +800,7 @@ var MoveBattle = /** @class */ (function () {
         this.TotalKills = 0;
         this.Player = player;
         this.Opponent = commons_1.GetOpponent(player);
-        this.SubMoves = [];
+        this.SubMoves = new Array();
     }
     MoveBattle.FromPlayerAndCell = function (player, idCell) {
         var mv = new MoveBattle(player);
@@ -756,15 +820,22 @@ var MoveBattle = /** @class */ (function () {
         }
         return mv;
     };
-    MoveBattle.Clone = function (mv0) {
-        var mv = new MoveBattle(mv0.Player);
-        mv.IdBefore = mv0.IdBefore;
-        mv.IdAfter = mv0.IdAfter;
-        mv.Weight = mv0.Weight;
-        mv.TotalKills = mv0.TotalKills;
-        mv.Steps = mv0.Steps;
-        mv.SubMoves.concat(mv0.SubMoves);
-        return mv;
+    MoveBattle.prototype.ToStr = function () {
+        var s = '';
+        var cb = cube_1.EmptyCube.AllCells[this.IdBefore].Coords.cxyz;
+        var ca = cube_1.EmptyCube.AllCells[this.IdAfter].Coords.cxyz;
+        if (this.TotalKills == 0) {
+            return "Player:" + this.Player + " MOVEBATTLE from [" + cb + "] to [" + ca + "]";
+        }
+        s += "Player:" + this.Player + " MOVEBATTLE from [" + cb + "] to [" + ca + "]\n";
+        var k = 0;
+        for (var _i = 0, _a = this.SubMoves; _i < _a.length; _i++) {
+            var ms = _a[_i];
+            ++k;
+            s += "" + k + " " + ms.ToStr() + '\n';
+        }
+        s += "  TotalKils: " + this.TotalKills;
+        return s;
     };
     MoveBattle.prototype.Do = function (cube) {
         for (var _i = 0, _a = this.SubMoves; _i < _a.length; _i++) {
@@ -773,7 +844,7 @@ var MoveBattle = /** @class */ (function () {
         }
     };
     MoveBattle.prototype.Undo = function (cube) {
-        for (var _i = 0, _a = this.SubMoves.reverse(); _i < _a.length; _i++) {
+        for (var _i = 0, _a = this.SubMoves.slice().reverse(); _i < _a.length; _i++) {
             var mv = _a[_i];
             mv.UndoStep(cube);
         }
@@ -797,8 +868,9 @@ exports.MoveBattle = MoveBattle;
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.MoveFirst = exports.MovePlace = exports.MovePass = exports.MoveComparer = void 0;
 var commons_1 = __webpack_require__(/*! ./commons */ "./src/commons.ts");
+var cube_1 = __webpack_require__(/*! ./cube */ "./src/cube.ts");
 exports.MoveComparer = function (m0, m1) {
-    return m0.Weight < m1.Weight ? -1 : 1;
+    return m0.Weight > m1.Weight ? -1 : 1;
 };
 var MovePass = /** @class */ (function () {
     function MovePass(player) {
@@ -806,6 +878,9 @@ var MovePass = /** @class */ (function () {
         this.ActionType = commons_1.ActionType.Pass;
         this.Weight = 0;
     }
+    MovePass.prototype.ToStr = function () {
+        return "Player:" + this.Player + " PASS";
+    };
     MovePass.prototype.Do = function (cube) { };
     MovePass.prototype.Undo = function (cube) { };
     return MovePass;
@@ -818,6 +893,10 @@ var MovePlace = /** @class */ (function () {
         this.Weight = 0;
         this.IdCell = idCell;
     }
+    MovePlace.prototype.ToStr = function () {
+        var c = cube_1.EmptyCube.AllCells[this.IdCell].Coords.cxyz;
+        return "Player:" + this.Player + " PLACE AT " + c;
+    };
     MovePlace.prototype.Do = function (cube) {
         cube.SetCellById(this.IdCell, this.Player);
     };
@@ -834,6 +913,10 @@ var MoveFirst = /** @class */ (function () {
         this.Weight = 0;
         this.IdCell = idCell;
     }
+    MoveFirst.prototype.ToStr = function () {
+        var c = cube_1.EmptyCube.AllCells[this.IdCell].Coords.cxyz;
+        return "Player:" + this.Player + " REMOVE AT " + c;
+    };
     MoveFirst.prototype.Do = function (cube) {
         cube.SetCellById(this.IdCell, commons_1.Content.Empty);
     };
@@ -870,7 +953,7 @@ exports.Placement = function (cube, player, randomize) {
             continue;
         var mv = new moves_1.MovePlace(player, idCell);
         mv.Do(cube);
-        mv.Weight = cube.ComputeDomination(player).DomPlayer * 100 + c.Power * 10000;
+        mv.Weight = (cube.ComputeDomination(player).DomPlayer * 100 + c.Power * 10000);
         if (randomize)
             mv.Weight += commons_1.RandInteger(0, 100);
         moves.push(mv);
@@ -886,7 +969,7 @@ exports.FirstTurn = function (cube, player, randomize) {
             continue;
         var mv = new moves_1.MoveFirst(player, idCell);
         mv.Do(cube);
-        mv.Weight = -cube.ComputeDomination(player).DomPlayer * 100 - c.Power * 10000;
+        mv.Weight = -(cube.ComputeDomination(player).DomPlayer * 100 + c.Power * 10000);
         if (randomize)
             mv.Weight -= commons_1.RandInteger(0, 100);
         moves.push(mv);
@@ -950,7 +1033,8 @@ exports.BuildMoveBattle = function (cube, current, moves) {
         var e = cube.ExportBit();
         if (!exports.AllCubes.includes(e)) {
             if (mv.Steps == 1 || ms.NbKills != 0) {
-                mv.Weight = commons_1.RandInteger(0, 100) + n.Power * 100 + mv.TotalKills * 1000;
+                var sc = cube.ComputeDomination(current.Player);
+                mv.Weight = commons_1.RandInteger(0, 100) + sc.DomPlayer * 100 + mv.TotalKills * 10000;
                 moves.push(mv);
             }
             if (ms.NbKills != 0)
