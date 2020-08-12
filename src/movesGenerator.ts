@@ -62,6 +62,32 @@ export const BuildSubMoves = function (cube: Cube, player: Content, idBefore: nu
     return ms;
 }
 
+export let AllCubes = new Array<number>();
+export const AllCubesClear = function (): void {
+    AllCubes = new Array<number>();
+}
+
+export const RandomCubes = function () {
+    AllCubesClear();
+
+    for (let k = 2; k < 11; ++k) {
+        console.group(`Players : ${k} x 2 tokens`);
+        for (let j = 0; j < 2; ++j) {
+            console.log(j);
+            let lt = Array.from(Array(24), (e, i) => i).sort((a, b) => 0.5 - Math.random());
+            let cube = new Cube();
+            for (let i = 0; i < k; ++i) {
+                cube.SetCellById(lt[2 * i], Content.P1);
+                cube.SetCellById(lt[2 * i + 1], Content.P2);
+            }
+
+            AllCubes.push(cube.ExportBit());
+        }
+        console.groupEnd();
+    }
+    console.log("NbAllCubes", AllCubes.length);
+}
+
 export const BuildMoveBattle = function (cube: Cube, current: MoveBattle, moves: Array<MoveBattle>): void {
     let cell = cube.GetCellById(current.IdAfter);
     if (current.Steps == 0 && DiffContent(cell.Content, current.Player))
@@ -77,13 +103,16 @@ export const BuildMoveBattle = function (cube: Cube, current: MoveBattle, moves:
         mv.SubMoves.push(ms);
 
         ms.DoStep(cube);
-        if (mv.Steps == 1 || ms.NbKills != 0) {
-            mv.Weight = RandInteger(0, 100) + n.Power * 100 + mv.TotalKills * 1000;
-            moves.push(mv);
-        }
+        let e = cube.ExportBit();
+        if (!AllCubes.includes(e)) {
+            if (mv.Steps == 1 || ms.NbKills != 0) {
+                mv.Weight = RandInteger(0, 100) + n.Power * 100 + mv.TotalKills * 1000;
+                moves.push(mv);
+            }
 
-        if (ms.NbKills != 0)
-            BuildMoveBattle(cube, mv, moves);
+            if (ms.NbKills != 0)
+                BuildMoveBattle(cube, mv, moves);
+        }
 
         ms.UndoStep(cube)
     }

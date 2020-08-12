@@ -14,12 +14,12 @@ describe("Bonus Moves.", () => {
         let cell6 = cube.GetCellByKey("c201");
         let cell7 = cube.GetCellByKey("c200");
 
-        cell1.Content = Content.P1;
-        cell5.Content = Content.P1;
-        cell7.Content = Content.P1;
+        cube.SetCellById(cell1.Id, Content.P1);
+        cube.SetCellById(cell5.Id, Content.P1);
+        cube.SetCellById(cell7.Id, Content.P1);
 
-        cell4.Content = Content.P2;
-        cell6.Content = Content.P2;
+        cube.SetCellById(cell4.Id, Content.P2);
+        cube.SetCellById(cell6.Id, Content.P2);
 
         let exportBefore = cube.Export();
 
@@ -58,12 +58,12 @@ describe("Bonus Moves.", () => {
         let cell5 = cube.GetCellByKey("c201");
         let cell6 = cube.GetCellByKey("c200");
 
-        cell1.Content = Content.P1;
-        cell4.Content = Content.P1;
-        cell6.Content = Content.P1;
+        cube.SetCellById(cell1.Id, Content.P1);
+        cube.SetCellById(cell4.Id, Content.P1);
+        cube.SetCellById(cell6.Id, Content.P1);
 
-        cell3.Content = Content.P2;
-        cell5.Content = Content.P2;
+        cube.SetCellById(cell3.Id, Content.P2);
+        cube.SetCellById(cell5.Id, Content.P2);
 
         let exportBefore = cube.Export();
 
@@ -103,14 +103,14 @@ describe("Bonus Moves.", () => {
         let cell6 = cube.GetCellByKey("c121");
         let cell7 = cube.GetCellByKey("c221");
 
-        cell1.Content = Content.P1;
-        cell3.Content = Content.P1;
-        cell5.Content = Content.P1;
-        cell7.Content = Content.P1;
+        cube.SetCellById(cell1.Id, Content.P1);
+        cube.SetCellById(cell3.Id, Content.P1);
+        cube.SetCellById(cell5.Id, Content.P1);
+        cube.SetCellById(cell7.Id, Content.P1);
 
-        cell2.Content = Content.P2;
-        cell4.Content = Content.P2;
-        cell6.Content = Content.P2;
+        cube.SetCellById(cell2.Id, Content.P2);
+        cube.SetCellById(cell4.Id, Content.P2);
+        cube.SetCellById(cell6.Id, Content.P2);
 
         let exportBefore = cube.Export();
 

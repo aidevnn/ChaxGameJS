@@ -1,6 +1,6 @@
 import { Content } from "../src/commons"
 import { Cube } from "./../src/cube"
-import { MovesBattle } from "./../src/movesGenerator"
+import { MovesBattle, AllCubes } from "./../src/movesGenerator"
 
 describe("Complex Moves.", () => {
     it("Three cells and kill one opponent (1).", () => {
@@ -71,12 +71,12 @@ describe("Complex Moves.", () => {
         let cell5 = cube.GetCellByKey("c211");
         let cell6 = cube.GetCellByKey("c221");
 
-        cell1.Content = Content.P1;
-        cell4.Content = Content.P1;
-        cell6.Content = Content.P1;
+        cube.SetCellById(cell1.Id, Content.P1);
+        cube.SetCellById(cell4.Id, Content.P1);
+        cube.SetCellById(cell6.Id, Content.P1);
 
-        cell3.Content = Content.P2;
-        cell5.Content = Content.P2;
+        cube.SetCellById(cell3.Id, Content.P2);
+        cube.SetCellById(cell5.Id, Content.P2);
 
         let exportBefore = cube.Export();
 
@@ -110,12 +110,12 @@ describe("Complex Moves.", () => {
         let cell5 = cube.GetCellByKey("c012");
         let cell6 = cube.GetCellByKey("c022");
 
-        cell1.Content = Content.P1;
-        cell4.Content = Content.P1;
-        cell6.Content = Content.P1;
+        cube.SetCellById(cell1.Id, Content.P1);
+        cube.SetCellById(cell4.Id, Content.P1);
+        cube.SetCellById(cell6.Id, Content.P1);
 
-        cell3.Content = Content.P2;
-        cell5.Content = Content.P2;
+        cube.SetCellById(cell3.Id, Content.P2);
+        cube.SetCellById(cell5.Id, Content.P2);
 
         let exportBefore = cube.Export();
 

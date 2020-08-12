@@ -42,11 +42,15 @@ export class Cube {
     AllAltCells: Array<AltCell>;
     Infos: Map<string, Cell>;
     Queue: Array<AltCell>;
+    BitPlayer1: number;
+    BitPlayer2: number;
     constructor() {
         this.AllCells = [];
         this.AllAltCells = [];
         this.Infos = new Map();
         this.Queue = [];
+        this.BitPlayer1 = 0;
+        this.BitPlayer2 = 0;
         this.Init();
     }
 
@@ -110,6 +114,7 @@ export class Cube {
         if (c == undefined)
             return;
 
+        this.ChangeBitPlayer(id, c.Content, content);
         c.Content = content;
     }
 
@@ -118,7 +123,18 @@ export class Cube {
         if (c == undefined)
             return;
 
+        this.ChangeBitPlayer(c.Id, c.Content, content);
         c.Content = content;
+    }
+
+    ChangeBitPlayer(id: number, b: Content, a: Content): void {
+        let i = 1 << id;
+        
+        if (b == Content.P1 && a == Content.Empty) this.BitPlayer1 ^= i;
+        if (b == Content.P2 && a == Content.Empty) this.BitPlayer2 ^= i;
+
+        if (b == Content.Empty && a == Content.P1) this.BitPlayer1 |= i;
+        if (b == Content.Empty && a == Content.P2) this.BitPlayer2 |= i;
     }
 
     Export(): string {
@@ -129,9 +145,13 @@ export class Cube {
         return s;
     }
 
+    ExportBit(): number {
+        return  this.BitPlayer1 + 1000000000000 * this.BitPlayer2;
+    }
+
     Clear(): void {
-        for (let c of this.AllCells) {
-            c.Content = Content.Empty;
+        for (let i = 0; i < 24; ++i) {
+            this.SetCellById(i, Content.Empty)
         }
     }
 

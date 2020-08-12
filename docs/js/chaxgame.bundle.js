@@ -129,6 +129,7 @@ var commons_1 = __webpack_require__(/*! ../src/commons */ "./src/commons.ts");
 var cube_1 = __webpack_require__(/*! ./../src/cube */ "./src/cube.ts");
 var movesGenerator_1 = __webpack_require__(/*! ./../src/movesGenerator */ "./src/movesGenerator.ts");
 exports.BenchMoveGen = function (M) {
+    //RandomCubes();
     for (var k = 2; k < 11; ++k) {
         console.log("Players : " + k + " x 2 tokens");
         var lt = Array.from(Array(24), function (e, i) { return i; }).sort(function (a, b) { return 0.5 - Math.random(); });
@@ -163,6 +164,9 @@ var BruteForce = function (cube, player, depth) {
     }
 };
 exports.BenchBruteForce = function (depth) {
+    var totalNb = 0;
+    var totalTime = 0;
+    movesGenerator_1.RandomCubes();
     for (var k = 2; k < 11; ++k) {
         console.group("Players : " + k + " x 2 tokens");
         for (var a = 0; a < 5; ++a) {
@@ -176,10 +180,14 @@ exports.BenchBruteForce = function (depth) {
             var start = Date.now();
             BruteForce(cube, commons_1.Content.P1, depth);
             var end = Date.now();
-            console.log("Nb Games : " + nb + "; Time: " + (end - start) + " ms");
+            var diff = end - start;
+            totalNb += nb;
+            totalTime += diff;
+            console.log("Nb Games : " + nb + "; Time: " + diff + " ms; Avg: " + Math.round(nb / diff) + " Games/ms");
         }
         console.groupEnd();
     }
+    console.log("Global Avg: " + Math.round(totalNb / totalTime) + " Games/ms");
 };
 
 
@@ -406,6 +414,8 @@ var Cube = /** @class */ (function () {
         this.AllAltCells = [];
         this.Infos = new Map();
         this.Queue = [];
+        this.BitPlayer1 = 0;
+        this.BitPlayer2 = 0;
         this.Init();
     }
     Cube.prototype.Init = function () {
@@ -460,13 +470,26 @@ var Cube = /** @class */ (function () {
         var c = this.AllCells[id];
         if (c == undefined)
             return;
+        this.ChangeBitPlayer(id, c.Content, content);
         c.Content = content;
     };
     Cube.prototype.SetCellByKey = function (cxyz, content) {
         var c = this.Infos.get(cxyz);
         if (c == undefined)
             return;
+        this.ChangeBitPlayer(c.Id, c.Content, content);
         c.Content = content;
+    };
+    Cube.prototype.ChangeBitPlayer = function (id, b, a) {
+        var i = 1 << id;
+        if (b == commons_1.Content.P1 && a == commons_1.Content.Empty)
+            this.BitPlayer1 ^= i;
+        if (b == commons_1.Content.P2 && a == commons_1.Content.Empty)
+            this.BitPlayer2 ^= i;
+        if (b == commons_1.Content.Empty && a == commons_1.Content.P1)
+            this.BitPlayer1 |= i;
+        if (b == commons_1.Content.Empty && a == commons_1.Content.P2)
+            this.BitPlayer2 |= i;
     };
     Cube.prototype.Export = function () {
         var s = '';
@@ -476,10 +499,12 @@ var Cube = /** @class */ (function () {
         }
         return s;
     };
+    Cube.prototype.ExportBit = function () {
+        return this.BitPlayer1 + 1000000000000 * this.BitPlayer2;
+    };
     Cube.prototype.Clear = function () {
-        for (var _i = 0, _a = this.AllCells; _i < _a.length; _i++) {
-            var c = _a[_i];
-            c.Content = commons_1.Content.Empty;
+        for (var i = 0; i < 24; ++i) {
+            this.SetCellById(i, commons_1.Content.Empty);
         }
     };
     Cube.prototype.Render = function (boardId) {
@@ -832,8 +857,9 @@ exports.MoveFirst = MoveFirst;
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.GenMovesBattle = exports.MovesBattle = exports.BuildMoveBattle = exports.BuildSubMoves = exports.FirstTurn = exports.Placement = void 0;
+exports.GenMovesBattle = exports.MovesBattle = exports.BuildMoveBattle = exports.RandomCubes = exports.AllCubesClear = exports.AllCubes = exports.BuildSubMoves = exports.FirstTurn = exports.Placement = void 0;
 var commons_1 = __webpack_require__(/*! ./commons */ "./src/commons.ts");
+var cube_1 = __webpack_require__(/*! ./cube */ "./src/cube.ts");
 var moves_1 = __webpack_require__(/*! ./moves */ "./src/moves.ts");
 var moveBattle_1 = __webpack_require__(/*! ./moveBattle */ "./src/moveBattle.ts");
 exports.Placement = function (cube, player, randomize) {
@@ -886,6 +912,28 @@ exports.BuildSubMoves = function (cube, player, idBefore, idAfter) {
     }
     return ms;
 };
+exports.AllCubes = new Array();
+exports.AllCubesClear = function () {
+    exports.AllCubes = new Array();
+};
+exports.RandomCubes = function () {
+    exports.AllCubesClear();
+    for (var k = 2; k < 11; ++k) {
+        console.group("Players : " + k + " x 2 tokens");
+        for (var j = 0; j < 2; ++j) {
+            console.log(j);
+            var lt = Array.from(Array(24), function (e, i) { return i; }).sort(function (a, b) { return 0.5 - Math.random(); });
+            var cube = new cube_1.Cube();
+            for (var i = 0; i < k; ++i) {
+                cube.SetCellById(lt[2 * i], commons_1.Content.P1);
+                cube.SetCellById(lt[2 * i + 1], commons_1.Content.P2);
+            }
+            exports.AllCubes.push(cube.ExportBit());
+        }
+        console.groupEnd();
+    }
+    console.log("NbAllCubes", exports.AllCubes.length);
+};
 exports.BuildMoveBattle = function (cube, current, moves) {
     var cell = cube.GetCellById(current.IdAfter);
     if (current.Steps == 0 && commons_1.DiffContent(cell.Content, current.Player))
@@ -899,12 +947,15 @@ exports.BuildMoveBattle = function (cube, current, moves) {
         mv.TotalKills += ms.NbKills;
         mv.SubMoves.push(ms);
         ms.DoStep(cube);
-        if (mv.Steps == 1 || ms.NbKills != 0) {
-            mv.Weight = commons_1.RandInteger(0, 100) + n.Power * 100 + mv.TotalKills * 1000;
-            moves.push(mv);
+        var e = cube.ExportBit();
+        if (!exports.AllCubes.includes(e)) {
+            if (mv.Steps == 1 || ms.NbKills != 0) {
+                mv.Weight = commons_1.RandInteger(0, 100) + n.Power * 100 + mv.TotalKills * 1000;
+                moves.push(mv);
+            }
+            if (ms.NbKills != 0)
+                exports.BuildMoveBattle(cube, mv, moves);
         }
-        if (ms.NbKills != 0)
-            exports.BuildMoveBattle(cube, mv, moves);
         ms.UndoStep(cube);
     }
 };

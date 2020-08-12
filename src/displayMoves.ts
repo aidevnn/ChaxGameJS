@@ -11,7 +11,6 @@ const DisplayMoves = function (cube: Cube, moves: Array<MoveBattle>): void {
 
     for (let mv of moves) {
         cube.ConsoleCube(true);
-        //console.log(mv);
         readlineSync.question("## Start");
 
         for (let ms of mv.SubMoves) {
@@ -56,12 +55,12 @@ export const MovesExamples2 = function (): void {
     let cell5 = cube.GetCellByKey("c012");
     let cell6 = cube.GetCellByKey("c022");
 
-    cell1.Content = Content.P1;
-    cell4.Content = Content.P1;
-    cell6.Content = Content.P1;
+    cube.SetCellById(cell1.Id, Content.P1);
+    cube.SetCellById(cell4.Id, Content.P1);
+    cube.SetCellById(cell6.Id, Content.P1);
 
-    cell3.Content = Content.P2;
-    cell5.Content = Content.P2;
+    cube.SetCellById(cell3.Id, Content.P2);
+    cube.SetCellById(cell5.Id, Content.P2);
 
     let moves = MovesBattle(cube, Content.P1, cell1.Id);
 
@@ -79,12 +78,12 @@ export const MovesExamples3 = function (): void {
     let cell6 = cube.GetCellByKey("c201");
     let cell7 = cube.GetCellByKey("c200");
 
-    cell1.Content = Content.P1;
-    cell5.Content = Content.P1;
-    cell7.Content = Content.P1;
+    cube.SetCellById(cell1.Id, Content.P1);
+    cube.SetCellById(cell5.Id, Content.P1);
+    cube.SetCellById(cell7.Id, Content.P1);
 
-    cell4.Content = Content.P2;
-    cell6.Content = Content.P2;
+    cube.SetCellById(cell4.Id, Content.P2);
+    cube.SetCellById(cell6.Id, Content.P2);
 
     let moves = MovesBattle(cube, Content.P1, cell1.Id);
 
