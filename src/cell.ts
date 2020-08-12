@@ -48,6 +48,8 @@ export class Cell {
     }
 }
 
+export const NullCell = new Cell(-1, -1, -1, -1);
+
 export class AltCell {
     Content: Content;
     AltContent: Content;

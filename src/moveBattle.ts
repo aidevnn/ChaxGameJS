@@ -18,6 +18,14 @@ export class SubMove {
         this.Opponent = GetOpponent(player);
     }
 
+    Clone(): SubMove {
+        let ms = new SubMove(this.Player, this.IdBefore, this.IdAfter);
+        ms.IdOpponent1 = this.IdOpponent1;
+        ms.IdOpponent2 = this.IdOpponent2;
+        ms.NbKills = this.NbKills;
+        return ms;
+    }
+
     DoStep(cube: Cube): void {
         cube.SetCellById(this.IdBefore, Content.Empty);
         cube.SetCellById(this.IdAfter, this.Player);
@@ -58,7 +66,10 @@ export class MoveBattle implements Move {
         mv.IdAfter = idAfter;
         mv.TotalKills = mv0.TotalKills;
         mv.Steps = mv0.Steps + 1;
-        mv.SubMoves.concat(mv0.SubMoves);
+        
+        for (let ms of mv0.SubMoves) {
+            mv.SubMoves.push(ms.Clone());
+        }
         return mv;
     }
 
@@ -80,15 +91,13 @@ export class MoveBattle implements Move {
     }
 
     Do(cube: Cube): void {
-        for (let mv of this.SubMoves)
-        {
+        for (let mv of this.SubMoves) {
             mv.DoStep(cube);
         }
     }
 
     Undo(cube: Cube): void {
-        for (let mv of this.SubMoves.reverse())
-        {
+        for (let mv of this.SubMoves.reverse()) {
             mv.UndoStep(cube);
         }
     }

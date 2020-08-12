@@ -99,13 +99,86 @@ var Chax =
 Object.defineProperty(exports, "__esModule", { value: true });
 var commons_1 = __webpack_require__(/*! ./commons */ "./src/commons.ts");
 var cube_1 = __webpack_require__(/*! ./cube */ "./src/cube.ts");
+var benchMoves_1 = __webpack_require__(/*! ./benchMoves */ "./src/benchMoves.ts");
 console.log("Chaxgame lib ready");
 module.exports = {
+    BenchBruteForce: benchMoves_1.BenchBruteForce,
     CellEmpty: commons_1.Content.Empty,
     CellP1: commons_1.Content.P1,
     CellP2: commons_1.Content.P2,
     Cube: function () {
         return new cube_1.Cube();
+    }
+};
+
+
+/***/ }),
+
+/***/ "./src/benchMoves.ts":
+/*!***************************!*\
+  !*** ./src/benchMoves.ts ***!
+  \***************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.BenchBruteForce = exports.BenchMoveGen = void 0;
+var commons_1 = __webpack_require__(/*! ../src/commons */ "./src/commons.ts");
+var cube_1 = __webpack_require__(/*! ./../src/cube */ "./src/cube.ts");
+var movesGenerator_1 = __webpack_require__(/*! ./../src/movesGenerator */ "./src/movesGenerator.ts");
+exports.BenchMoveGen = function (M) {
+    for (var k = 2; k < 11; ++k) {
+        console.log("Players : " + k + " x 2 tokens");
+        var lt = Array.from(Array(24), function (e, i) { return i; }).sort(function (a, b) { return 0.5 - Math.random(); });
+        var cube = new cube_1.Cube();
+        for (var i = 0; i < k; ++i) {
+            cube.SetCellById(lt[2 * i], commons_1.Content.P1);
+            cube.SetCellById(lt[2 * i + 1], commons_1.Content.P2);
+        }
+        for (var a = 0; a < 5; ++a) {
+            console.time("test");
+            var s = 0;
+            for (var b = 0; b < M; ++b) {
+                var moves = movesGenerator_1.GenMovesBattle(cube, commons_1.Content.P1);
+                s += moves.length;
+            }
+            console.timeEnd("test");
+        }
+    }
+};
+var nb = 0;
+var BruteForce = function (cube, player, depth) {
+    if (depth == 0) {
+        ++nb;
+        return;
+    }
+    var moves = movesGenerator_1.GenMovesBattle(cube, player);
+    for (var _i = 0, moves_1 = moves; _i < moves_1.length; _i++) {
+        var mv = moves_1[_i];
+        mv.Do(cube);
+        BruteForce(cube, commons_1.GetOpponent(player), depth - 1);
+        mv.Undo(cube);
+    }
+};
+exports.BenchBruteForce = function (depth) {
+    for (var k = 2; k < 11; ++k) {
+        console.group("Players : " + k + " x 2 tokens");
+        for (var a = 0; a < 5; ++a) {
+            var lt = Array.from(Array(24), function (e, i) { return i; }).sort(function (a, b) { return 0.5 - Math.random(); });
+            var cube = new cube_1.Cube();
+            for (var i = 0; i < k; ++i) {
+                cube.SetCellById(lt[2 * i], commons_1.Content.P1);
+                cube.SetCellById(lt[2 * i + 1], commons_1.Content.P2);
+            }
+            nb = 0;
+            var start = Date.now();
+            BruteForce(cube, commons_1.Content.P1, depth);
+            var end = Date.now();
+            console.log("Nb Games : " + nb + "; Time: " + (end - start) + " ms");
+        }
+        console.groupEnd();
     }
 };
 
@@ -122,7 +195,7 @@ module.exports = {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.AltCell = exports.Cell = void 0;
+exports.AltCell = exports.NullCell = exports.Cell = void 0;
 var commons_1 = __webpack_require__(/*! ./commons */ "./src/commons.ts");
 var coords3D_1 = __webpack_require__(/*! ./coords3D */ "./src/coords3D.ts");
 var Cell = /** @class */ (function () {
@@ -165,6 +238,7 @@ var Cell = /** @class */ (function () {
     return Cell;
 }());
 exports.Cell = Cell;
+exports.NullCell = new Cell(-1, -1, -1, -1);
 var AltCell = /** @class */ (function () {
     function AltCell(id, pow) {
         this.Id = id;
@@ -379,7 +453,7 @@ var Cube = /** @class */ (function () {
     Cube.prototype.GetCellByKey = function (cxyz) {
         var c = this.Infos.get(cxyz);
         if (c == undefined)
-            return null;
+            return cell_1.NullCell;
         return c;
     };
     Cube.prototype.SetCellById = function (id, content) {
@@ -575,6 +649,287 @@ function DisplayCube(cube, detail) {
     }
 }
 exports.DisplayCube = DisplayCube;
+
+
+/***/ }),
+
+/***/ "./src/moveBattle.ts":
+/*!***************************!*\
+  !*** ./src/moveBattle.ts ***!
+  \***************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.MoveBattle = exports.SubMove = void 0;
+var commons_1 = __webpack_require__(/*! ./commons */ "./src/commons.ts");
+var SubMove = /** @class */ (function () {
+    function SubMove(player, idBefore, idAfter) {
+        this.IdOpponent1 = -1;
+        this.IdOpponent2 = -1;
+        this.NbKills = 0;
+        this.IdBefore = idBefore;
+        this.IdAfter = idAfter;
+        this.Player = player;
+        this.Opponent = commons_1.GetOpponent(player);
+    }
+    SubMove.prototype.Clone = function () {
+        var ms = new SubMove(this.Player, this.IdBefore, this.IdAfter);
+        ms.IdOpponent1 = this.IdOpponent1;
+        ms.IdOpponent2 = this.IdOpponent2;
+        ms.NbKills = this.NbKills;
+        return ms;
+    };
+    SubMove.prototype.DoStep = function (cube) {
+        cube.SetCellById(this.IdBefore, commons_1.Content.Empty);
+        cube.SetCellById(this.IdAfter, this.Player);
+        if (this.IdOpponent1 != -1)
+            cube.SetCellById(this.IdOpponent1, commons_1.Content.Empty);
+        if (this.IdOpponent2 != -1)
+            cube.SetCellById(this.IdOpponent2, commons_1.Content.Empty);
+    };
+    SubMove.prototype.UndoStep = function (cube) {
+        if (this.IdOpponent1 != -1)
+            cube.SetCellById(this.IdOpponent1, this.Opponent);
+        if (this.IdOpponent2 != -1)
+            cube.SetCellById(this.IdOpponent2, this.Opponent);
+        cube.SetCellById(this.IdAfter, commons_1.Content.Empty);
+        cube.SetCellById(this.IdBefore, this.Player);
+    };
+    return SubMove;
+}());
+exports.SubMove = SubMove;
+var MoveBattle = /** @class */ (function () {
+    function MoveBattle(player) {
+        this.ActionType = commons_1.ActionType.Battle;
+        this.Weight = 0;
+        this.IdBefore = 0;
+        this.IdAfter = 0;
+        this.Steps = 0;
+        this.TotalKills = 0;
+        this.Player = player;
+        this.Opponent = commons_1.GetOpponent(player);
+        this.SubMoves = [];
+    }
+    MoveBattle.FromPlayerAndCell = function (player, idCell) {
+        var mv = new MoveBattle(player);
+        mv.IdBefore = idCell;
+        mv.IdAfter = idCell;
+        return mv;
+    };
+    MoveBattle.FromPrevious = function (mv0, idBefore, idAfter) {
+        var mv = new MoveBattle(mv0.Player);
+        mv.IdBefore = idBefore;
+        mv.IdAfter = idAfter;
+        mv.TotalKills = mv0.TotalKills;
+        mv.Steps = mv0.Steps + 1;
+        for (var _i = 0, _a = mv0.SubMoves; _i < _a.length; _i++) {
+            var ms = _a[_i];
+            mv.SubMoves.push(ms.Clone());
+        }
+        return mv;
+    };
+    MoveBattle.Clone = function (mv0) {
+        var mv = new MoveBattle(mv0.Player);
+        mv.IdBefore = mv0.IdBefore;
+        mv.IdAfter = mv0.IdAfter;
+        mv.Weight = mv0.Weight;
+        mv.TotalKills = mv0.TotalKills;
+        mv.Steps = mv0.Steps;
+        mv.SubMoves.concat(mv0.SubMoves);
+        return mv;
+    };
+    MoveBattle.prototype.Do = function (cube) {
+        for (var _i = 0, _a = this.SubMoves; _i < _a.length; _i++) {
+            var mv = _a[_i];
+            mv.DoStep(cube);
+        }
+    };
+    MoveBattle.prototype.Undo = function (cube) {
+        for (var _i = 0, _a = this.SubMoves.reverse(); _i < _a.length; _i++) {
+            var mv = _a[_i];
+            mv.UndoStep(cube);
+        }
+    };
+    return MoveBattle;
+}());
+exports.MoveBattle = MoveBattle;
+
+
+/***/ }),
+
+/***/ "./src/moves.ts":
+/*!**********************!*\
+  !*** ./src/moves.ts ***!
+  \**********************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.MoveFirst = exports.MovePlace = exports.MovePass = exports.MoveComparer = void 0;
+var commons_1 = __webpack_require__(/*! ./commons */ "./src/commons.ts");
+exports.MoveComparer = function (m0, m1) {
+    return m0.Weight < m1.Weight ? -1 : 1;
+};
+var MovePass = /** @class */ (function () {
+    function MovePass(player) {
+        this.Player = player;
+        this.ActionType = commons_1.ActionType.Pass;
+        this.Weight = 0;
+    }
+    MovePass.prototype.Do = function (cube) { };
+    MovePass.prototype.Undo = function (cube) { };
+    return MovePass;
+}());
+exports.MovePass = MovePass;
+var MovePlace = /** @class */ (function () {
+    function MovePlace(player, idCell) {
+        this.Player = player;
+        this.ActionType = commons_1.ActionType.Place;
+        this.Weight = 0;
+        this.IdCell = idCell;
+    }
+    MovePlace.prototype.Do = function (cube) {
+        cube.SetCellById(this.IdCell, this.Player);
+    };
+    MovePlace.prototype.Undo = function (cube) {
+        cube.SetCellById(this.IdCell, commons_1.Content.Empty);
+    };
+    return MovePlace;
+}());
+exports.MovePlace = MovePlace;
+var MoveFirst = /** @class */ (function () {
+    function MoveFirst(player, idCell) {
+        this.Player = player;
+        this.ActionType = commons_1.ActionType.Remove;
+        this.Weight = 0;
+        this.IdCell = idCell;
+    }
+    MoveFirst.prototype.Do = function (cube) {
+        cube.SetCellById(this.IdCell, commons_1.Content.Empty);
+    };
+    MoveFirst.prototype.Undo = function (cube) {
+        cube.SetCellById(this.IdCell, this.Player);
+    };
+    return MoveFirst;
+}());
+exports.MoveFirst = MoveFirst;
+
+
+/***/ }),
+
+/***/ "./src/movesGenerator.ts":
+/*!*******************************!*\
+  !*** ./src/movesGenerator.ts ***!
+  \*******************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.GenMovesBattle = exports.MovesBattle = exports.BuildMoveBattle = exports.BuildSubMoves = exports.FirstTurn = exports.Placement = void 0;
+var commons_1 = __webpack_require__(/*! ./commons */ "./src/commons.ts");
+var moves_1 = __webpack_require__(/*! ./moves */ "./src/moves.ts");
+var moveBattle_1 = __webpack_require__(/*! ./moveBattle */ "./src/moveBattle.ts");
+exports.Placement = function (cube, player, randomize) {
+    var moves = new Array();
+    for (var idCell = 0; idCell < 24; ++idCell) {
+        var c = cube.GetCellById(idCell);
+        if (c.Content != commons_1.Content.Empty)
+            continue;
+        var mv = new moves_1.MovePlace(player, idCell);
+        mv.Do(cube);
+        mv.Weight = cube.ComputeDomination(player).DomPlayer * 100 + c.Power * 10000;
+        if (randomize)
+            mv.Weight += commons_1.RandInteger(0, 100);
+        moves.push(mv);
+        mv.Undo(cube);
+    }
+    return moves.sort(moves_1.MoveComparer);
+};
+exports.FirstTurn = function (cube, player, randomize) {
+    var moves = new Array();
+    for (var idCell = 0; idCell < 24; ++idCell) {
+        var c = cube.GetCellById(idCell);
+        if (c.Content != player)
+            continue;
+        var mv = new moves_1.MoveFirst(player, idCell);
+        mv.Do(cube);
+        mv.Weight = -cube.ComputeDomination(player).DomPlayer * 100 - c.Power * 10000;
+        if (randomize)
+            mv.Weight -= commons_1.RandInteger(0, 100);
+        moves.push(mv);
+        mv.Undo(cube);
+    }
+    return moves.sort(moves_1.MoveComparer);
+};
+exports.BuildSubMoves = function (cube, player, idBefore, idAfter) {
+    var cell = cube.GetCellById(idAfter);
+    var ms = new moveBattle_1.SubMove(player, idBefore, idAfter);
+    for (var _i = 0, _a = cell.Rows; _i < _a.length; _i++) {
+        var row = _a[_i];
+        var row0 = row[0];
+        var c0 = row0.Content;
+        var c1 = row[1].Content;
+        if (commons_1.DiffContent(player, c0) && commons_1.SameContent(player, c1)) {
+            if (ms.NbKills == 0)
+                ms.IdOpponent1 = row0.Id;
+            else
+                ms.IdOpponent2 = row0.Id;
+            ++ms.NbKills;
+        }
+    }
+    return ms;
+};
+exports.BuildMoveBattle = function (cube, current, moves) {
+    var cell = cube.GetCellById(current.IdAfter);
+    if (current.Steps == 0 && commons_1.DiffContent(cell.Content, current.Player))
+        throw new Error("exception");
+    for (var _i = 0, _a = cell.Neighbors; _i < _a.length; _i++) {
+        var n = _a[_i];
+        if (n.Content != commons_1.Content.Empty)
+            continue;
+        var mv = moveBattle_1.MoveBattle.FromPrevious(current, current.IdBefore, n.Id);
+        var ms = exports.BuildSubMoves(cube, current.Player, current.IdAfter, n.Id);
+        mv.TotalKills += ms.NbKills;
+        mv.SubMoves.push(ms);
+        ms.DoStep(cube);
+        if (mv.Steps == 1 || ms.NbKills != 0) {
+            mv.Weight = commons_1.RandInteger(0, 100) + n.Power * 100 + mv.TotalKills * 1000;
+            moves.push(mv);
+        }
+        if (ms.NbKills != 0)
+            exports.BuildMoveBattle(cube, mv, moves);
+        ms.UndoStep(cube);
+    }
+};
+exports.MovesBattle = function (cube, player, idCell) {
+    var root = moveBattle_1.MoveBattle.FromPlayerAndCell(player, idCell);
+    var moves = new Array();
+    exports.BuildMoveBattle(cube, root, moves);
+    return moves;
+};
+exports.GenMovesBattle = function (cube, player) {
+    var moves = new Array();
+    for (var i = 0; i < 24; ++i) {
+        var cell = cube.GetCellById(i);
+        if (cell.Content != player)
+            continue;
+        var root = moveBattle_1.MoveBattle.FromPlayerAndCell(player, cell.Id);
+        exports.BuildMoveBattle(cube, root, moves);
+    }
+    if (moves.length == 0) {
+        var pass = new Array();
+        pass.push(new moves_1.MovePass(player));
+        return pass;
+    }
+    return moves.sort(moves_1.MoveComparer);
+};
 
 
 /***/ })

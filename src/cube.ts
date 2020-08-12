@@ -1,5 +1,5 @@
 import { Dir, Content, SameContent, GetOpponent } from "./commons";
-import { Cell, AltCell } from "./cell";
+import { Cell, NullCell, AltCell } from "./cell";
 import { DisplayCube } from "./cubeConsole"
 
 export class CubeScore {
@@ -96,11 +96,11 @@ export class Cube {
         return this.AllCells[id];
     }
 
-    GetCellByKey(cxyz: string): Cell | null {
+    GetCellByKey(cxyz: string): Cell {
         let c = this.Infos.get(cxyz);
 
         if (c == undefined)
-            return null;
+            return NullCell;
 
         return c;
     }

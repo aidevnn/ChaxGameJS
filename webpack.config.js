@@ -4,6 +4,7 @@ module.exports =[
         entry: './src/index.ts',
         mode: 'development',
         devtool: 'nosources-source-map',
+        target: "node",
         module: {
             rules: [
                 {

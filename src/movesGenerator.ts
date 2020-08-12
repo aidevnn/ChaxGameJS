@@ -89,11 +89,30 @@ export const BuildMoveBattle = function (cube: Cube, current: MoveBattle, moves:
     }
 }
 
-export const MovesBattle = function (cube: Cube, player: Content, idCell: number | undefined): Array<MoveBattle> {
-    let id0 = idCell == undefined ? 0 : idCell;
-    let root = MoveBattle.FromPlayerAndCell(player, id0);
+export const MovesBattle = function (cube: Cube, player: Content, idCell: number): Array<MoveBattle> {
+    let root = MoveBattle.FromPlayerAndCell(player, idCell);
     let moves = new Array<MoveBattle>();
     BuildMoveBattle(cube, root, moves);
 
     return moves;
+}
+
+export const GenMovesBattle = function (cube: Cube, player: Content): Array<MoveBattle> | Array<MovePass> {
+    let moves = new Array<MoveBattle>();
+    for (let i = 0; i < 24; ++i) {
+        let cell = cube.GetCellById(i);
+        if (cell.Content != player)
+            continue;
+
+        let root = MoveBattle.FromPlayerAndCell(player, cell.Id);
+        BuildMoveBattle(cube, root, moves);
+    }
+
+    if (moves.length == 0) {
+        let pass = new Array<MovePass>();
+        pass.push(new MovePass(player));
+        return pass;
+    }
+
+    return moves.sort(MoveComparer);
 }
